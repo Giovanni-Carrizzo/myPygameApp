@@ -6,7 +6,7 @@ from os import path
 img_dir = path.join(path.dirname(__file__),'img')#img is the folder where the graphics are
  
 #parameters
-WIDTH, HEIGHT, FPS = (800,600,60)
+WIDTH, HEIGHT, FPS = (750,650,60)
 #define colours
 WHITE = (255,255,255)
 BLACK = (0,0,0)
@@ -28,7 +28,13 @@ class Player(pg.sprite.Sprite):
         self.image = pg.transform.scale(player_img,(50,38))
         self.image.set_colorkey(BLACK)
         #useful for moving, size, position and collision
-        self.rect = self.image.get_rect()  #looks at the image and gets its rect
+        self.rect = self.image.get_rect()
+        self.radius = 21 #assumption made since width of sprite is 50 - radius is 25
+        #we will draw a circle so we see how big it is so we can adjust the radius
+        #we will draw it in red at the centre of the rectangle and using the radius above
+        
+
+        #looks at the image and gets its rect
         self.rect.centerx = WIDTH/2 #places image in the centre
         self.rect.bottom = HEIGHT-10 #puts it in 10px from bottom of screen
         #it needs to move side to side so we need speed
@@ -65,7 +71,8 @@ class Mob(pg.sprite.Sprite):
         self.image = pg.transform.scale(mob_img,(30,40))
         self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
-        
+
+        self.radius = int(self.rect.width * 0.9/2)
         #make the enemy spawn off top of screen to appear off thescreen and then start dropping down
         self.rect.x = random.randrange(0,WIDTH - self.rect.width) #appears within the limits of the screen
         self.rect.y = random.randrange(-100,-40) #this is off the screen
@@ -83,7 +90,7 @@ class Bullet(pg.sprite.Sprite):
     def __init__(self,x,y):
         #x and y and respawn positions based on the player's position
         pg.sprite.Sprite.__init__(self)
-        self.image = pg.transform.scale(bullets_img,(30,30))
+        self.image = pg.transform.scale(bullets_img,(30,30 ))
         self.image.set_colorkey(BLACK)
         self.rect = self.image.get_rect()
         #set respawn position to right in front of the player
@@ -102,7 +109,7 @@ screen = pg.display.set_mode((WIDTH, HEIGHT))
 pg.display.set_caption('My Game')
 clock = pg.time.Clock()
 
-background = pg.image.load(path.join(img_dir, "bg_1_1.png")).convert()
+background = pg.image.load(path.join(img_dir, "Joe.jpg ")).convert()
 background_rect = background.get_rect()
 
 player_img = pg.image.load(path.join(img_dir, "Garley.jpg")).convert()
@@ -149,7 +156,7 @@ while running:
         all_sprites.add(m)
         mobs.add(m)
     #Check to see if a mob hits the player
-    hits = pg.sprite.spritecollide(player,mobs,False) #parameters are object to check against and group against
+    hits = pg.sprite.spritecollide(player,mobs,False, pg.sprite.collide_circle) #parameters are object to check against and group against
     #False indicates whether hit item in group should be deleted or not
     
     if hits:
