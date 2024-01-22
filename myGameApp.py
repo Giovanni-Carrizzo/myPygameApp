@@ -118,7 +118,30 @@ class Mob(pg.sprite.Sprite):
         if self.rect.top > HEIGHT + 10:
             self.rect.x = random.randrange(0, WIDTH - self.rect.width) #appears within the limits of the screen
             self.rect.y = random.randrange(-100,-40) #this is off the screen
-            self.speedy = random.randrange(1,8)          
+            self.speedy = random.randrange(1,8) 
+
+class Boss(pg.sprite.Sprite):
+    #Sprite for Boss which is more powerful than enemy
+    def __init__(self):
+        pg.sprite.Sprite.__init__(self)
+        self.image = pg.transform.scale(boss_img,(150,150))
+        self.image.set_colorkey(BLACK)
+        #set sprite image to a copy
+        self.rect = self.image.get_rect()
+
+        self.radius = int(self.rect.width * 0.9/2)
+        #make the enemy spawn off top of screen to appear off thescreen and then start dropping down
+        self.rect.centerx = WIDTH/2
+        self.rect.y = random.randrange(-100,-40) #this is off the screen
+        self.speedy = 2
+
+    def update(self):
+        self.rect.y += self.speedy
+        #deal with enemy when they get to bottom of the screen
+        if self.rect.top > HEIGHT + 10:
+            self.rect.centerx = WIDTH /2 #appears within the limits of the screen
+            self.rect.y = random.randrange(-100,-40) #this is off the screen
+            self.speedy = 2
 
 class Bullet(pg.sprite.Sprite):
     def __init__(self,x,y):
@@ -161,10 +184,11 @@ background_rect = background.get_rect()
 player_img = pg.image.load(path.join(img_dir, "Garley.jpg")).convert()
 mob_img = pg.image.load(path.join(img_dir, "Sean.jpg")).convert()
 bullets_img = pg.image.load(path.join(img_dir, "Lucian.jpg")).convert()
+boss_img = pg.image.load(path.join(img_dir, 'Stefan.jpg')).convert()
 
 #create a list of enemy images
 mob_images = []
-mob_list = ["Sean.jpg", "Stefan.jpg", "Szymon.jpg", "Cody.jpg"]
+mob_list = ["Sean.jpg", "Szymon.jpg", "Cody.jpg"]
 
 #loop through list of files
 for img in mob_list:
@@ -181,6 +205,7 @@ pg.mixer.music.set_volume(0.6)
 all_sprites = pg.sprite.Group()
 mobs = pg.sprite.Group()  #creating another group would aid during collision detection
 bullets = pg.sprite.Group()  
+boss = pg.sprite.Group()
 #instatiate the player object and add it to the sprite group
 player = Player()
 #Spawn some mobs
@@ -191,8 +216,9 @@ for i in range(8):
 
 all_sprites.add(mobs)
 all_sprites.add(player)
+all_sprites.add(boss)
 
-score = 0
+score = 99
 #play background audio
 #parameters could include - play list, looping
 #Loops=-1 - tells pygame to loop each time audio gets to the end
@@ -216,18 +242,29 @@ while running:
     all_sprites.update()
     #Check if a bullet hits a mob
     hits = pg.sprite.groupcollide(mobs,bullets,True,True)
+    bosshits = pg.sprite.groupcollide(boss,bullets,True,True)
     #respawn mobs destroyed by bullets 
     for hit in hits:
         score += 1 #1 point for every hit you make - challenge is c
+        if score == 100:
+            b = Boss()
+            all_sprites.remove(mobs)
+            all_sprites.add(b)
+            boss.add(b)
         m = Mob()
         all_sprites.add(m)
         mobs.add(m)
+
+    
     #Check to see if a mob hits the player
     hits = pg.sprite.spritecollide(player,mobs,False, pg.sprite.collide_circle) #parameters are object to check against and group against
+    bosshitsp = pg.sprite.spritecollide(player,boss,False, pg.sprite.collide_circle)
     #False indicates whether hit item in group should be deleted or not
     
     if hits:
         death_sound.play()
+        running = False
+    if bosshitsp:
         running = False
     #draw/render
     screen.fill(BLACK)
