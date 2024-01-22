@@ -4,7 +4,7 @@ import random
 
 from os import path
 img_dir = path.join(path.dirname(__file__),'img')#img is the folder where the graphics are
- 
+snd_dir = path.join(path.dirname(__file__),'snd')#snd is the folder where the sounds are 
 #parameters
 WIDTH, HEIGHT, FPS = (750,650,60)
 #define colours
@@ -17,7 +17,7 @@ YELLOW = (255,255,0)
 
 #Initialise common pygame objects
 pg.init()
-pg.mixer.init()
+pg.mixer.init() #required for sound
 
 #a sprite will be an object which inherits from the built in sprite class
 class Player(pg.sprite.Sprite):
@@ -63,6 +63,8 @@ class Player(pg.sprite.Sprite):
         all_sprites.add(bullet)
         #add bullet to the bullets sprite group
         bullets.add(bullet)
+        #play a sound
+        shoot_sound.play()
 
 class Mob(pg.sprite.Sprite):
     #enemy mobile object which inherits from the sprite
@@ -167,6 +169,14 @@ mob_list = ["Sean.jpg", "Stefan.jpg", "Szymon.jpg", "Cody.jpg"]
 #loop through list of files
 for img in mob_list:
     mob_images.append(pg.image.load(path.join(img_dir,img)).convert())
+
+#load sound files
+shoot_sound = pg.mixer.Sound(path.join(snd_dir, 'laser_sound_effect.mp3'))
+death_sound = pg.mixer.Sound(path.join(snd_dir, 'falling-mario.mp3'))
+
+#load background sound
+pg.mixer.music.load(path.join(snd_dir, 'Symphony.mp3'))
+pg.mixer.music.set_volume(0.6)
 #create a sprite group
 all_sprites = pg.sprite.Group()
 mobs = pg.sprite.Group()  #creating another group would aid during collision detection
@@ -183,6 +193,10 @@ all_sprites.add(mobs)
 all_sprites.add(player)
 
 score = 0
+#play background audio
+#parameters could include - play list, looping
+#Loops=-1 - tells pygame to loop each time audio gets to the end
+pg.mixer.music.play(loops=-1)
 #GameLoop
 running = True
 while running:
@@ -213,6 +227,7 @@ while running:
     #False indicates whether hit item in group should be deleted or not
     
     if hits:
+        death_sound.play()
         running = False
     #draw/render
     screen.fill(BLACK)
