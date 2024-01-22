@@ -139,7 +139,19 @@ class Bullet(pg.sprite.Sprite):
 #create the display
 screen = pg.display.set_mode((WIDTH, HEIGHT))
 pg.display.set_caption('My Game')
-clock = pg.time.Clock()
+clock = pg.time.Clock() #handles the speed
+
+#search for a matching font
+font_name = pg.font.match_font('arial')
+
+def draw_text(surf,text,size,x,y):
+    #create a font object
+    font = pg.font.Font(font_name,size)#this will create text
+    text_surface = font.render(text,True,WHITE) #True is for anti aliasing
+    text_rect = text_surface.get_rect()#get the rectangle for the text
+    text_rect.midtop = (x,y) #put x,y at the midtop of the rectangle
+    surf.blit(text_surface, text_rect)
+
 
 background = pg.image.load(path.join(img_dir, "Joe.jpg ")).convert()
 background_rect = background.get_rect()
@@ -170,8 +182,8 @@ for i in range(8):
 all_sprites.add(mobs)
 all_sprites.add(player)
 
-#game loop
-
+score = 0
+#GameLoop
 running = True
 while running:
     #keep the game running at the right speed
@@ -192,6 +204,7 @@ while running:
     hits = pg.sprite.groupcollide(mobs,bullets,True,True)
     #respawn mobs destroyed by bullets 
     for hit in hits:
+        score += 1 #1 point for every hit you make - challenge is c
         m = Mob()
         all_sprites.add(m)
         mobs.add(m)
@@ -207,6 +220,8 @@ while running:
     screen.blit(background,background_rect)
 
     all_sprites.draw(screen)
+    #draw the score here
+    draw_text(screen,str(score),18,WIDTH/2,10)
     #always do this after drawing anything
     pg.display.flip()
 #terminate the game window and close everything up    
