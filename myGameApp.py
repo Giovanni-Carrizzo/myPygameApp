@@ -64,7 +64,7 @@ class Player(pg.sprite.Sprite):
         #add bullet to the bullets sprite group
         bullets.add(bullet)
         #play a sound
-        shoot_sound.play()
+        #shoot_sound.play()
 
 class Mob(pg.sprite.Sprite):
     #enemy mobile object which inherits from the sprite
@@ -172,7 +172,7 @@ font_name = pg.font.match_font('arial')
 def draw_text(surf,text,size,x,y):
     #create a font object
     font = pg.font.Font(font_name,size)#this will create text
-    text_surface = font.render(text,True,WHITE) #True is for anti aliasing
+    text_surface = font.render(text,True,BLACK) #True is for anti aliasing
     text_rect = text_surface.get_rect()#get the rectangle for the text
     text_rect.midtop = (x,y) #put x,y at the midtop of the rectangle
     surf.blit(text_surface, text_rect)
@@ -195,12 +195,12 @@ for img in mob_list:
     mob_images.append(pg.image.load(path.join(img_dir,img)).convert())
 
 #load sound files
-shoot_sound = pg.mixer.Sound(path.join(snd_dir, 'laser_sound_effect.mp3'))
+#shoot_sound = pg.mixer.Sound(path.join(snd_dir, 'laser_sound_effect.mp3'))
 death_sound = pg.mixer.Sound(path.join(snd_dir, 'falling-mario.mp3'))
 
 #load background sound
 pg.mixer.music.load(path.join(snd_dir, 'Symphony.mp3'))
-pg.mixer.music.set_volume(0.6)
+pg.mixer.music.set_volume(1)
 #create a sprite group
 all_sprites = pg.sprite.Group()
 mobs = pg.sprite.Group()  #creating another group would aid during collision detection
@@ -218,7 +218,7 @@ all_sprites.add(mobs)
 all_sprites.add(player)
 all_sprites.add(boss)
 
-score = 99
+score = 0
 #play background audio
 #parameters could include - play list, looping
 #Loops=-1 - tells pygame to loop each time audio gets to the end
@@ -237,7 +237,21 @@ while running:
         elif event.type == pg.KEYDOWN:
             if event.key == pg.K_SPACE:
                 player.shoot()
-
+    num1 = random.randint(1,12)
+    num2 = random.randint(1,12)
+    if score % 30 == 0 and score >0:
+        all_sprites.remove(mobs)
+        answer = int(input(f'What is {num1} multiplied by {num2}? '))
+        draw_text(screen,str(answer),40,WIDTH/2,HEIGHT/2)
+        pg.display.flip()
+        if num1*num2 == answer:
+            correct_message = "Correct, play on!"
+            draw_text(screen,str(correct_message),42,WIDTH/2,HEIGHT/2)
+            pg.display.flip()
+            all_sprites.add(mobs)
+            score += 1
+        else:
+            pg.quit
     #update
     all_sprites.update()
     #Check if a bullet hits a mob
