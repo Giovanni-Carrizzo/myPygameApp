@@ -1,10 +1,12 @@
 #imports
 import pygame as pg
 import random
-
+import sqlite3 as sq
+from supportModules import *
 from os import path
 img_dir = path.join(path.dirname(__file__),'img')#img is the folder where the graphics are
 snd_dir = path.join(path.dirname(__file__),'snd')#snd is the folder where the sounds are 
+
 #parameters
 WIDTH, HEIGHT, FPS = (750,650,60)
 #define colours
@@ -177,7 +179,6 @@ def draw_text(surf,text,size,x,y):
     text_rect.midtop = (x,y) #put x,y at the midtop of the rectangle
     surf.blit(text_surface, text_rect)
 
-
 background = pg.image.load(path.join(img_dir, "Joe.jpg ")).convert()
 background_rect = background.get_rect()
 
@@ -226,6 +227,7 @@ pg.mixer.music.play(loops=-1)
 #GameLoop
 running = True
 while running:
+    
     #keep the game running at the right speed
     clock.tick(FPS)
     #process input (events)
@@ -242,12 +244,8 @@ while running:
     if score % 30 == 0 and score >0:
         all_sprites.remove(mobs)
         answer = int(input(f'What is {num1} multiplied by {num2}? '))
-        draw_text(screen,str(answer),40,WIDTH/2,HEIGHT/2)
-        pg.display.flip()
         if num1*num2 == answer:
             correct_message = "Correct, play on!"
-            draw_text(screen,str(correct_message),42,WIDTH/2,HEIGHT/2)
-            pg.display.flip()
             all_sprites.add(mobs)
             score += 1
         else:
@@ -290,5 +288,8 @@ while running:
     draw_text(screen,str(score),18,WIDTH/2,10)
     #always do this after drawing anything
     pg.display.flip()
-#terminate the game window and close everything up    
+#terminate the game window and close everything up
 pg.quit
+print(score)
+name = input('Enter your name: ')
+writetoSpecific(name,score)
